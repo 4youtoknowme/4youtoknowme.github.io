@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Harsh Arya. Films from inside the pack. Delhi, India.">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Arya Runner's Eye Films</title>
+<!-- BUILD 18: reels framed properly again, no zoom -->
+<meta name="build" content="18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&display=swap">
+</head>
+<body>
+
+<style>
+/* =========================================================
+   TYPE
+   Mac Scott's site runs on Alte Haas Grotesk, a free grotesque.
+   Download it, put AlteHaasGrotesk-Regular.woff and
+   AlteHaasGrotesk-Bold.woff beside this page, uncomment the two
+   blocks below, and the whole site switches over on its own.
+
+   @font-face{ font-family:"Alte Haas Grotesk"; font-weight:400;
+     src:url("AlteHaasGrotesk-Regular.woff") format("woff"); font-display:swap; }
+   @font-face{ font-family:"Alte Haas Grotesk"; font-weight:700;
+     src:url("AlteHaasGrotesk-Bold.woff") format("woff"); font-display:swap; }
+   ========================================================= */
+
+:root{
+  /* ===== SWAP YOUR FRAME IN HERE (a still instead of the loop) ===== */
+  --frame-image: none;
+
+  /* ===== GRAIN =====
+     Built the way Ali Gallop's is: one plate over the whole site at
+     low opacity, no blend mode, a 249px tile. Raise --grain to push
+     it, drop the tile number for finer grain. */
+  --grain:       0.07;
+  --grain-tile:  249px;
+
+  /* ===== REEL MASK =====
+     A band of page colour over the top and bottom of each reel, which
+     is where YouTube puts its title and its controls. 0px shows the
+     whole picture and lets that furniture through. Around 48px covers
+     it at the cost of trimming a little off the frame. */
+  --reel-mask:   0px;
+
+  --ground:      #0b100e;
+  --pine:        #1d3a2d;
+  --pine-deep:   #0f1f19;
+  --amber:       #b9793e;
+  --ink:         #ffffff;
+  --rule:        rgba(255,255,255,0.18);
+  --scrim:       0;
+  --gutter:      clamp(18px, 3vw, 56px);
+
+  /* one scale across the landing and the work titles, the way the
+     reference does it. the about line sits smaller on its own */
+  --type:        clamp(1.05rem, 2.35vw, 2.6rem);
+  --type-index:  var(--type);
+  --type-about:  clamp(0.88rem, 1.5vw, 1.5rem);
+
+  --sans: "Alte Haas Grotesk", "Hanken Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+html, body{ height:100%; }
+body{
+  margin:0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ===== the frame ===== */
+.stage{ position:fixed; inset:0; overflow:hidden; z-index:0; }
+
+.stage__media{
+  position:absolute; inset:-4%;
+  background-color: var(--pine-deep);
+  background-image: var(--frame-image);
+  background-size:cover;
+  background-position:center;
+  animation: drift 44s ease-in-out infinite alternate;
+}
+.stage__media::before{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(120% 90% at 8% 12%, rgba(38,74,58,0.95) 0%, rgba(13,24,19,0) 62%),
+    radial-gradient(90% 80% at 92% 88%, rgba(185,121,62,0.55) 0%, rgba(13,24,19,0) 58%),
+    linear-gradient(158deg, var(--pine) 0%, var(--pine-deep) 55%, var(--ground) 100%);
+}
+.stage--photo .stage__media::before{ display:none; }
+
+.stage__video{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover;
+}
+/* a 16:9 embed cropped to fill whatever shape the screen is.
+   locked down so nothing can resize it from the outside */
+.stage__yt, #stage-player{
+  position:absolute !important; top:50% !important; left:50% !important;
+  transform:translate(-50%, -50%) !important;
+  width:100vw !important; height:56.25vw !important;
+  min-height:100vh !important; min-width:177.78vh !important;
+  max-width:none !important; max-height:none !important;
+  border:0;
+  pointer-events:none;
+}
+
+.stage__vignette{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(130% 110% at 50% 45%, rgba(0,0,0,0) 38%, rgba(0,0,0,0.55) 100%),
+    linear-gradient(to right, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0) 38%),
+    linear-gradient(to top, rgba(0,0,0,0.46) 0%, rgba(0,0,0,0) 40%);
+}
+.stage--motion .stage__vignette{ opacity:0.6; }
+.stage--motion .stage__media{ animation:none; inset:0; }
+
+.stage__scrim{
+  position:absolute; inset:0;
+  background: rgba(7,11,9,0.72);
+  opacity: var(--scrim);
+  transition: opacity 700ms ease;
+}
+
+@keyframes drift{
+  from{ transform:scale(1.02) translate3d(0,0,0); }
+  to  { transform:scale(1.11) translate3d(-1.5%,-1.2%,0); }
+}
+
+/* =========================================================
+   GRAIN
+   One plate over the entire site, text and film included, which
+   is how it works on the site you pointed me at. No blend mode,
+   just a low opacity gif tiling over the top of everything.
+   ========================================================= */
+.grain{
+  position:fixed; inset:0; z-index:1000;
+  width:100%; height:100%;
+  /* the copy sitting next to this page comes first, your hosted one is
+     the backstop if that file ever goes missing from the folder */
+  background-image:
+    url("grain.gif"),
+    url("https://cdn.prod.website-files.com/62cd4977eea82a281a61dd4c/6443bd89088b013280525893_grain.gif");
+  background-position:0 0;
+  background-size:var(--grain-tile) auto, var(--grain-tile) auto;
+  background-repeat:repeat;
+  opacity:var(--grain);
+  pointer-events:none;
+  animation:grainIn 800ms ease both;
+}
+@keyframes grainIn{ from{ opacity:0; } to{ opacity:var(--grain); } }
+
+/* ===== shell ===== */
+.shell{
+  position:relative; z-index:1;
+  min-height:100%;
+  display:grid;
+  grid-template-rows:1fr;
+  padding:clamp(18px, 3.4vw, 40px) var(--gutter);
+  padding-bottom:calc(clamp(18px, 3.4vw, 40px) + env(safe-area-inset-bottom, 0px));
+  box-sizing:border-box;
+}
+.shell > main{ display:grid; min-width:0; }
+
+/* ===== links ===== */
+a{ color:var(--ink); }
+a:focus-visible{ outline:1px solid currentColor; outline-offset:5px; }
+
+/* the reference marks a link by bolding and underlining one part of it */
+.link{
+  text-decoration:none;
+  font-weight:400;
+  transition:color 240ms ease;
+}
+.link .hit{
+  font-weight:700;
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:3px;
+  text-decoration-color:currentColor;
+}
+.link:hover{ color:#fff; }
+.link:hover .hit{ text-decoration-thickness:2px; }
+
+/* ===== views ===== */
+.view{ display:grid; align-content:center; min-width:0; }
+.view[hidden]{ display:none; }
+.fading{ animation:rise 620ms cubic-bezier(.2,.7,.25,1) both; }
+@keyframes rise{
+  from{ opacity:0; transform:translateY(10px); }
+  to  { opacity:1; transform:none; }
+}
+
+/* index */
+.index{ justify-items:end; text-align:right; }
+.index__links, .index__nav{
+  display:grid; gap:0;
+  font-size:var(--type-index);
+  font-weight:400;
+  line-height:1.16;
+  letter-spacing:0.015em;
+}
+.index__nav{ margin-top:1.16em; }   /* the one blank line, as in the reference */
+.index__links a, .index__nav a{ justify-self:end; }
+
+/* =========================================================
+   INNER PAGES
+   The frame belongs to the landing. Everything else goes white.
+   ========================================================= */
+body[data-view="work"], body[data-view="about"],
+body[data-view="film"], body[data-view="series"]{
+  background:#fff;
+  color:#0a0a0a;
+}
+body[data-view="work"]  .stage,
+body[data-view="about"] .stage,
+body[data-view="film"]  .stage,
+body[data-view="series"] .stage{ display:none; }
+#view-work{ justify-items:end; }
+#view-about{ justify-items:center; }
+
+/* work index */
+.works{
+  list-style:none; margin:0; padding:0;
+  width:100%; text-align:right;
+}
+.work{
+  display:inline-block;
+  color:inherit;
+  text-decoration:none;
+  font-weight:700;
+  text-transform:uppercase;
+  font-size:var(--type);
+  line-height:1.08;
+  letter-spacing:0.005em;
+  transition:opacity 180ms ease;
+}
+.work:hover{ opacity:0.4; }
+
+.home{
+  display:block; text-align:right;
+  margin-top:1.5em;
+  color:inherit;
+  text-decoration:none;
+  font-weight:700;
+  text-transform:uppercase;
+  font-size:var(--type);
+  line-height:1.08;
+  transition:opacity 180ms ease;
+}
+.home:hover{ opacity:0.4; }
+#view-about .home{ text-align:center; margin-top:2.2em; font-size:var(--type-about); }
+
+/* one film */
+#view-film, #view-series{ justify-items:center; }
+.film{
+  width:100%;
+  max-width:min(1280px, calc(74vh * 16 / 9));
+  display:grid; gap:clamp(10px, 1.6vw, 20px);
+}
+.film__frame{
+  position:relative; width:100%; aspect-ratio:16 / 9;
+  background:#000;
+}
+.film__frame > #film-player,
+.film__frame iframe{
+  position:absolute !important; inset:0 !important;
+  width:100% !important; height:100% !important;
+  max-width:none !important; border:0;
+  pointer-events:none;
+}
+.film__hit{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  background:transparent; border:0; padding:0; margin:0;
+  cursor:pointer; appearance:none;
+}
+.film__hit:focus-visible{ outline:2px solid #0a0a0a; outline-offset:3px; }
+
+.film__bar{
+  display:flex; flex-wrap:wrap; gap:8px 24px;
+  align-items:baseline;
+  font-weight:700; text-transform:uppercase;
+  font-size:clamp(0.74rem, 1.15vw, 1rem);
+  letter-spacing:0.02em;
+}
+.film__nav{ display:flex; gap:20px; margin-left:auto; }
+.film__nav a{
+  color:inherit; text-decoration:none;
+  transition:opacity 180ms ease;
+}
+.film__nav a:hover{ opacity:0.4; }
+
+/* =========================================================
+   A SERIES: a vertical feed of reels
+   One reel per screen. The frame is kept to 76% of the screen so
+   that even mid scroll a second reel can never pass half visible,
+   which is what decides where the sound sits.
+   ========================================================= */
+body[data-view="series"]{ overflow:hidden; }
+#view-series{ align-content:stretch; position:relative; }
+
+.feed{
+  position:relative;
+  height:100%;
+  width:100%;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scroll-snap-type:y mandatory;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.feed::-webkit-scrollbar{ display:none; }
+.feed.is-gliding{ scroll-snap-type:none; }   /* the tween drives it instead */
+
+.reel{
+  height:100%;
+  scroll-snap-align:center;
+  scroll-snap-stop:always;
+  display:grid; place-items:center;
+}
+.reel__frame{
+  position:relative;
+  height:76%;
+  aspect-ratio:9 / 16;
+  max-width:100%;
+  background:#000;
+  overflow:hidden;            /* this is what hides YouTube's furniture */
+  opacity:0.25;
+  transition:opacity 500ms ease;
+}
+.reel.is-live .reel__frame{ opacity:1; }
+/* The player sits exactly in the frame, no scaling, so the reel is
+   framed as you shot it. --reel-mask trims a band off the top and
+   bottom, which is where YouTube draws its title and its controls.
+   0 shows the whole picture and lets that furniture through. */
+.reel__frame .ytslot,
+.reel__frame iframe{
+  position:absolute !important;
+  top:0 !important; left:0 !important;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important; border:0;
+  pointer-events:none;
+}
+.reel__frame::before,
+.reel__frame::after{
+  content:"";
+  position:absolute; left:0; right:0;
+  height:var(--reel-mask, 0px);
+  background:#fff;
+  z-index:2;
+  pointer-events:none;
+}
+.reel__frame::before{ top:0; }
+.reel__frame::after{ bottom:0; }
+.reel__hit{
+  position:absolute; inset:0;
+  background:transparent; border:0; padding:0; margin:0;
+  cursor:pointer; appearance:none;
+}
+.reel__hit:focus-visible{ outline:2px solid #0a0a0a; outline-offset:3px; }
+
+/* the bar sits over the feed, the way a menu bar does */
+.series__bar{
+  position:absolute; left:0; right:0; bottom:0;
+  z-index:3;
+  display:flex; flex-wrap:wrap; gap:8px 24px; align-items:baseline;
+  padding:clamp(10px,1.4vw,16px) 0;
+  background:linear-gradient(to top, #fff 55%, rgba(255,255,255,0));
+  font-weight:700; text-transform:uppercase;
+  font-size:clamp(0.74rem, 1.15vw, 1rem);
+  letter-spacing:0.02em;
+  pointer-events:none;
+}
+.series__bar a{ pointer-events:auto; }
+.series__count{ font-variant-numeric:tabular-nums; opacity:0.45; font-weight:400; }
+
+/* about */
+.about{ max-width:34ch; text-align:center; }
+.about p{
+  margin:0;
+  font-size:var(--type-about);
+  line-height:1.22;
+  letter-spacing:0.015em;
+  text-wrap:balance;
+}
+
+@media (max-width:640px){
+  .film__bar{ font-size:0.7rem; gap:6px 16px; }
+  .film__nav{ gap:16px; }
+  .series__bar{ font-size:0.7rem; gap:6px 14px; }
+  .reel__frame{ height:72%; }
+  .home{ margin-top:1.2em; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .stage__media{ animation:none; }
+  .grain{ animation:none; }
+  .fading{ animation:none; }
+  .work, .home{ transition:none; }
+  .reel__frame{ transition:none; }
+}
+</style>
+
+<div class="stage" id="stage">
+  <div class="stage__media">
+    <!-- ===== THE LANDING LOOP =====
+         To change the film, swap the id eZkTD865eh4 in BOTH places
+         below (src and playlist), since playlist is what loops it.
+    -->
+    <iframe class="stage__yt" id="stage-player"
+      src="https://www.youtube-nocookie.com/embed/eZkTD865eh4?enablejsapi=1&autoplay=1&mute=1&controls=0&loop=1&playlist=eZkTD865eh4&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0&vq=hd1080"
+      title="Landing loop" allow="autoplay; encrypted-media" frameborder="0" tabindex="-1"></iframe>
+  </div>
+  <div class="stage__vignette"></div>
+  <div class="stage__scrim"></div>
+</div>
+
+<!-- your 35mm plate. keep grain.gif next to this page -->
+<div class="grain" aria-hidden="true"></div>
+
+<div class="shell">
+  <main>
+    <!-- ============ INDEX ============ -->
+    <section class="view index" id="view-index">
+      <div class="index__links">
+        <a class="link" href="mailto:Harsharya2209@gmail.com"><span class="hit">Harsharya</span>2209@gmail.com</a>
+        <a class="link" href="https://www.instagram.com/harshendra.arya/" target="_blank" rel="noopener"><span class="hit">Instagram</span></a>
+      </div>
+      <nav class="index__nav">
+        <a class="link" href="#/work" data-nav>selected <span class="hit">work</span></a>
+        <a class="link" href="#/about" data-nav>about <span class="hit">me</span></a>
+      </nav>
+    </section>
+
+    <!-- ============ WORK ============ -->
+    <section class="view" id="view-work" hidden>
+      <ul class="works" id="works"></ul>
+      <a class="home" href="#/" data-nav>Home.</a>
+    </section>
+
+    <!-- ============ ONE FILM ============ -->
+    <section class="view" id="view-film" hidden>
+      <div class="film">
+        <div class="film__frame">
+          <div id="film-player"></div>
+          <button class="film__hit" id="film-hit" type="button" aria-label="Play or pause"></button>
+        </div>
+        <div class="film__bar">
+          <span id="film-title"></span>
+          <span class="film__nav">
+            <a href="#/work" data-nav>Selected work.</a>
+            <a href="#/" data-nav>Home.</a>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ A SERIES ============ -->
+    <section class="view" id="view-series" hidden>
+      <div class="feed" id="feed"></div>
+      <div class="series__bar">
+        <span id="series-title"></span>
+        <span class="series__count" id="series-count"></span>
+        <span class="film__nav">
+          <a href="#/work" data-nav>Selected work.</a>
+          <a href="#/" data-nav>Home.</a>
+        </span>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="view" id="view-about" hidden>
+      <div class="about">
+        <p>"Tenacious and Fortunate", aptly put.</p>
+      </div>
+      <a class="home" href="#/" data-nav>Home.</a>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  /* =========================================================
+     THE WORK
+     This list builds the selected work page and every film page.
+     One entry per piece:
+       slug  what shows in the address, #/film/<slug>
+       title what people read
+       id    a single film, the YouTube id from the end of its link
+       ids   a series of vertical shorts, in order, ids only
+     ========================================================= */
+  var WORK = [
+    { slug: 'uvu',    title: 'UVU spec ad',             id: 'eZkTD865eh4' },
+    { slug: 'people', title: 'People (PAUL x Sukriti)', id: 'exn6TYY-zeQ' },
+    { slug: 'seven',  title: '7 Stages of Love', ids: [
+        'KPW2mt8_oJc', '1AQuJuPy4NQ', 'R1fCNtNwVh8', 'abHfooAGyc8',
+        'cfBpF0Anwmg', '4sn5jsHNtk4', 'zgFG2fwU6R8'
+      ] }
+  ];
+
+  var BY_SLUG = {};
+  WORK.forEach(function (w) { BY_SLUG[w.slug] = w; });
+
+  var views = {
+    index:  document.getElementById('view-index'),
+    work:   document.getElementById('view-work'),
+    film:   document.getElementById('view-film'),
+    series: document.getElementById('view-series'),
+    about:  document.getElementById('view-about')
+  };
+  var stage = document.getElementById('stage');
+  var root  = document.documentElement;
+
+  /* ---- the selected work list ---- */
+  var list = document.getElementById('works');
+  WORK.forEach(function (w) {
+    var li = document.createElement('li');
+    var a  = document.createElement('a');
+    a.className = 'work';
+    a.href = '#/film/' + w.slug;
+    a.textContent = w.title;
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+
+  /* ---- YouTube, built by us so it brings no interface of its own ---- */
+  var VARS = {
+    autoplay: 1, controls: 0, rel: 0, modestbranding: 1, playsinline: 1,
+    disablekb: 1, fs: 0, iv_load_policy: 3
+  };
+  var apiReady = new Promise(function (resolve) {
+    window.onYouTubeIframeAPIReady = resolve;
+    var s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  });
+
+  // ask for the best the video has, and keep asking if YouTube drops it
+  function best(p) {
+    try {
+      var levels = p.getAvailableQualityLevels ? p.getAvailableQualityLevels() : [];
+      p.setPlaybackQuality(levels && levels.length ? levels[0] : 'highres');
+    } catch (e) {}
+  }
+
+  // the landing loop, hooked up for quality only, never resized by us
+  apiReady.then(function () {
+    try {
+      new YT.Player('stage-player', {
+        events: {
+          onReady: function (e) { best(e.target); },
+          onStateChange: function (e) { if (e.data === 1) best(e.target); },
+          onPlaybackQualityChange: function (e) { best(e.target); }
+        }
+      });
+    } catch (e) {}
+  });
+
+  /* ---- one film ---- */
+  var filmYT = null;
+  var filmLabel = document.getElementById('film-title');
+  var filmHit   = document.getElementById('film-hit');
+
+  /* =========================================================
+     SOUND
+     The work pages play out loud with nothing to click. Arriving
+     from the work list is itself a click, which is what browsers
+     want before they allow audio, so this normally just works.
+     Someone who opens a film link cold gets it muted for a moment,
+     and the first touch of anything, scroll included, turns it on.
+     ========================================================= */
+  function loud(p) {
+    try { p.unMute(); p.setVolume(100); } catch (e) {}
+  }
+
+  function armSound(p) {
+    var events = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+    function fire() {
+      loud(p);
+      try { if (p.getPlayerState() !== 1) p.playVideo(); } catch (e) {}
+      events.forEach(function (t) { document.removeEventListener(t, fire); });
+    }
+    events.forEach(function (t) { document.addEventListener(t, fire, { passive: true }); });
+  }
+
+  function playLoud(p) {
+    try {
+      loud(p);
+      p.playVideo();
+      setTimeout(function () {
+        if (p.getPlayerState() !== 1) {     // audio was refused, so run quiet and wait
+          p.mute(); p.playVideo(); armSound(p);
+        }
+      }, 700);
+    } catch (e) {}
+  }
+
+  function startFilm(w) {
+    if (filmYT && filmYT.loadVideoById) {
+      filmYT.loadVideoById({ videoId: w.id, suggestedQuality: 'highres' });
+      playLoud(filmYT);
+      return;
+    }
+    apiReady.then(function () {
+      if (filmYT) return;
+      filmYT = new YT.Player('film-player', {
+        host: 'https://www.youtube-nocookie.com',
+        videoId: w.id,
+        playerVars: VARS,
+        events: {
+          onReady: function (e) { best(e.target); playLoud(e.target); },
+          onPlaybackQualityChange: function (e) { best(e.target); },
+          onStateChange: function (e) {
+            if (e.data === 1) best(e.target);
+            if (e.data === 0) { e.target.seekTo(0); e.target.pauseVideo(); }
+          }
+        }
+      });
+    });
+  }
+
+  filmHit.addEventListener('click', function () { toggle(filmYT); });
+
+  function toggle(p) {
+    if (!p || !p.getPlayerState) return;
+    try {
+      loud(p);                                   // any click also brings the sound up
+      if (p.getPlayerState() === 1) p.pauseVideo();
+      else p.playVideo();
+    } catch (e) {}
+  }
+
+  /* =========================================================
+     A SERIES: the reel feed
+     One reel per screen, scrolled slowly. Whichever reel is more
+     than half on screen is the one playing, with its sound up.
+     Everything else is paused and silent, so two can never talk
+     over each other.
+     ========================================================= */
+  var feed    = document.getElementById('feed');
+  var sTitle  = document.getElementById('series-title');
+  var sCount  = document.getElementById('series-count');
+  var players = [];      // one per reel, built as it comes into view
+  var current = -1;
+  var builtFor = null;
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function buildSeries(w) {
+    if (builtFor === w.slug) {          // coming back to it: start from the top again
+      current = -1;
+      feed.scrollTop = 0;
+      setActive(0, w);
+      return;
+    }
+    builtFor = w.slug;
+    players = [];
+    feed.innerHTML = '';
+    w.ids.forEach(function (id, i) {
+      var reel = document.createElement('div');
+      reel.className = 'reel';
+      reel.dataset.index = i;
+
+      var frame = document.createElement('div');
+      frame.className = 'reel__frame';
+
+      var slot = document.createElement('div');
+      slot.className = 'ytslot';
+      slot.id = 'short-' + i;
+
+      var hit = document.createElement('button');
+      hit.className = 'reel__hit';
+      hit.type = 'button';
+      hit.setAttribute('aria-label', 'Play or pause');
+      hit.addEventListener('click', function () {
+        if (i !== current) { glideTo(i); return; }
+        toggle(players[i]);
+      });
+
+      frame.appendChild(slot);
+      frame.appendChild(hit);
+      reel.appendChild(frame);
+      feed.appendChild(reel);
+      players.push(null);
+    });
+    current = -1;
+    feed.scrollTop = 0;
+    setActive(0, w);
+  }
+
+  function mount(i, w) {
+    if (players[i] || !w.ids[i]) return;
+    apiReady.then(function () {
+      if (players[i]) return;
+      players[i] = new YT.Player('short-' + i, {
+        host: 'https://www.youtube-nocookie.com',
+        videoId: w.ids[i],
+        playerVars: VARS,
+        events: {
+          onReady: function (e) {
+            best(e.target);
+            if (i === current) playLoud(e.target);
+            else { try { e.target.mute(); e.target.pauseVideo(); } catch (err) {} }
+          },
+          onPlaybackQualityChange: function (e) { best(e.target); },
+          onStateChange: function (e) {
+            if (e.data === 1) best(e.target);
+            if (e.data === 0) { e.target.seekTo(0); e.target.playVideo(); }  // reels loop
+          }
+        }
+      });
+    });
+  }
+
+  function setActive(i, w) {
+    w = w || BY_SLUG[builtFor];
+    if (!w) return;
+    i = Math.max(0, Math.min(w.ids.length - 1, i));
+    if (i === current) return;
+    current = i;
+
+    [].forEach.call(feed.children, function (el, n) {
+      el.classList.toggle('is-live', n === i);
+    });
+    sCount.textContent = (i + 1) + ' / ' + w.ids.length;
+
+    mount(i, w);
+    if (i + 1 < w.ids.length) mount(i + 1, w);   // the next one, warmed up
+
+    players.forEach(function (p, n) {
+      if (!p) return;
+      try {
+        if (n === i) { loud(p); p.playVideo(); }
+        else { p.mute(); p.pauseVideo(); }
+      } catch (e) {}
+    });
+  }
+
+  // whichever reel covers the middle of the screen owns the sound
+  function readPosition() {
+    if (!feed.clientHeight) return;
+    setActive(Math.round(feed.scrollTop / feed.clientHeight));
+  }
+
+  var settle;
+  feed.addEventListener('scroll', function () {
+    clearTimeout(settle);
+    settle = setTimeout(readPosition, 90);
+  }, { passive: true });
+
+  /* the slow part: one gesture moves one reel, eased, not flung */
+  var gliding = false;
+  function glideTo(i) {
+    var w = BY_SLUG[builtFor];
+    if (!w) return;
+    i = Math.max(0, Math.min(w.ids.length - 1, i));
+    var from = feed.scrollTop;
+    var to   = i * feed.clientHeight;
+    if (calm) { feed.scrollTop = to; setActive(i, w); return; }
+    if (Math.abs(to - from) < 2) { setActive(i, w); return; }
+
+    var t0 = performance.now(), ms = 1100;
+    gliding = true;
+    feed.classList.add('is-gliding');
+    setActive(i, w);                     // sound moves with the intent, not after it
+
+    (function step(now) {
+      var p = Math.min(1, (now - t0) / ms);
+      var e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;  // ease in out
+      feed.scrollTop = from + (to - from) * e;
+      if (p < 1) requestAnimationFrame(step);
+      else {
+        feed.classList.remove('is-gliding');
+        setTimeout(function () { gliding = false; }, 60);
+      }
+    })(t0);
+  }
+
+  feed.addEventListener('wheel', function (e) {
+    if (calm) return;                    // let the system scroll it plainly
+    e.preventDefault();
+    if (gliding) return;
+    if (Math.abs(e.deltaY) < 4) return;
+    glideTo(current + (e.deltaY > 0 ? 1 : -1));
+  }, { passive: false });
+
+  document.addEventListener('keydown', function (e) {
+    if (document.body.dataset.view !== 'series') return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); glideTo(current + 1); }
+    if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft'  || e.key === 'PageUp')   { e.preventDefault(); glideTo(current - 1); }
+  });
+
+  function stopSeries() {
+    players.forEach(function (p) {
+      try { if (p) { p.mute(); p.pauseVideo(); } } catch (e) {}
+    });
+  }
+
+  /* ---- routing ---- */
+  function route(hash) {
+    if (hash.indexOf('#/film/') === 0) {
+      var w = BY_SLUG[hash.slice(7)];
+      if (w) return { name: w.ids ? 'series' : 'film', work: w };
+    }
+    if (hash === '#/work')  return { name: 'work' };
+    if (hash === '#/about') return { name: 'about' };
+    return { name: 'index' };
+  }
+
+  function show(hash) {
+    var r = route(hash || '#/');
+
+    Object.keys(views).forEach(function (k) {
+      views[k].hidden = (k !== r.name);
+      views[k].classList.remove('fading');
+    });
+    var active = views[r.name];
+    void active.offsetWidth;
+    active.classList.add('fading');
+
+    if (r.name === 'film') {
+      filmLabel.textContent = r.work.title;
+      startFilm(r.work);
+      stopSeries();
+      document.title = r.work.title + ', Arya';
+    } else if (r.name === 'series') {
+      sTitle.textContent = r.work.title;
+      buildSeries(r.work);
+      if (filmYT && filmYT.pauseVideo) { try { filmYT.pauseVideo(); } catch (e) {} }
+      document.title = r.work.title + ', Arya';
+    } else {
+      if (filmYT && filmYT.stopVideo) { try { filmYT.stopVideo(); } catch (e) {} }
+      stopSeries();
+      document.title = r.name === 'work'  ? "Selected work, Arya"
+                     : r.name === 'about' ? "About, Arya"
+                     : "Arya Runner's Eye Films";
+    }
+
+    document.body.dataset.view = r.name;
+    root.style.setProperty('--scrim', r.name === 'index' ? '0' : '1');
+    window.scrollTo(0, 0);
+  }
+
+  window.addEventListener('hashchange', function () { show(location.hash); });
+  show(location.hash);
+
+  var hasImage = getComputedStyle(root).getPropertyValue('--frame-image').trim() !== 'none';
+  if (hasImage) stage.classList.add('stage--photo');
+  if (stage.querySelector('video, iframe')) stage.classList.add('stage--motion');
+})();
+</script>
+
+</body>
+</html>
